@@ -136,7 +136,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
 
             CustomTextField(
               label: 'Nomor HP Terdaftar / Nomor Kartu',
-              hint: 'Contoh: 081234567890',
+              hint: 'Masukkan nomor HP atau kartu e-Wallet',
               prefixIcon: CupertinoIcons.phone_fill,
               controller: _phoneController,
               keyboardType: TextInputType.phone,
@@ -145,10 +145,11 @@ class _TopUpScreenState extends State<TopUpScreen> {
 
             CustomTextField(
               label: 'Nominal Top Up (Rp)',
-              hint: 'Minimal Rp 10.000',
+              hint: 'Masukkan nominal top up',
               prefixIcon: CupertinoIcons.money_dollar_circle_fill,
               controller: _amountController,
               keyboardType: TextInputType.number,
+              inputFormatters: [RupiahInputFormatter()],
             ),
             const SizedBox(height: 12),
 

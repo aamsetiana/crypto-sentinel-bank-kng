@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../core/constants/colors.dart';
 import '../core/constants/text_styles.dart';
 
@@ -13,6 +14,7 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final int? maxLength;
   final ValueChanged<String>? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     super.key,
@@ -24,6 +26,7 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.maxLength,
     this.onChanged,
+    this.inputFormatters,
   });
 
   @override
@@ -64,6 +67,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           keyboardType: widget.keyboardType,
           maxLength: widget.maxLength,
           onChanged: widget.onChanged,
+          inputFormatters: widget.inputFormatters,
           autocorrect: false,
           enableSuggestions: false,
           textInputAction: widget.isPassword ? TextInputAction.done : TextInputAction.next,
@@ -98,5 +102,38 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
       ],
     );
+  }
+}
+
+/// Formatter untuk mengubah angka menjadi format Rupiah (dengan pemisah titik) secara otomatis.
+class RupiahInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+    final cleanText = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleanText.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+    final formatted = _formatNumber(cleanText);
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+
+  static String _formatNumber(String s) {
+    final buffer = StringBuffer();
+    for (int i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(s[i]);
+    }
+    return buffer.toString();
   }
 }

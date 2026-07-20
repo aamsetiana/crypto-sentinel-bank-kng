@@ -220,10 +220,11 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
 
           CustomTextField(
             label: 'Nominal Transfer (Rp)',
-            hint: 'Contoh: 500.000',
+            hint: 'Masukkan nominal transfer',
             prefixIcon: CupertinoIcons.money_dollar_circle_fill,
             controller: _amountController,
             keyboardType: TextInputType.number,
+            inputFormatters: [RupiahInputFormatter()],
           ),
           const SizedBox(height: 12),
 
@@ -250,7 +251,7 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
 
           CustomTextField(
             label: 'Catatan Transfer (Opsional)',
-            hint: 'Contoh: Bayar sewa kios bulan Juli',
+            hint: 'Masukkan catatan transfer (opsional)',
             prefixIcon: CupertinoIcons.doc_text_fill,
             controller: _noteController,
           ),
@@ -638,18 +639,24 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border),
           ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: AppColors.primary.withOpacity(0.12),
-              child: Text(
-                fav['name']!.substring(0, 1),
-                style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Material(
+              color: Colors.transparent,
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.primary.withOpacity(0.12),
+                  child: Text(
+                    fav['name']!.substring(0, 1),
+                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                title: Text(fav['name']!, style: AppTextStyles.textTheme.titleMedium),
+                subtitle: Text('${fav['bank']} • ${fav['account']}', style: AppTextStyles.textTheme.bodySmall),
+                trailing: const Icon(CupertinoIcons.arrow_right_circle_fill, color: AppColors.primary),
+                onTap: () => _onFavoriteSelected(fav),
               ),
             ),
-            title: Text(fav['name']!, style: AppTextStyles.textTheme.titleMedium),
-            subtitle: Text('${fav['bank']} • ${fav['account']}', style: AppTextStyles.textTheme.bodySmall),
-            trailing: const Icon(CupertinoIcons.arrow_right_circle_fill, color: AppColors.primary),
-            onTap: () => _onFavoriteSelected(fav),
           ),
         );
       },

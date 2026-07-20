@@ -117,7 +117,7 @@ class _PulseDataScreenState extends State<PulseDataScreen> with SingleTickerProv
               children: [
                 CustomTextField(
                   label: 'Nomor Handphone',
-                  hint: 'Contoh: 081234567890',
+                  hint: 'Masukkan nomor HP tujuan',
                   prefixIcon: CupertinoIcons.phone_fill,
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
