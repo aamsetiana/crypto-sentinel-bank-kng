@@ -304,37 +304,61 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
             ),
           ] else ...[
             // Pilihan Metode Transfer Bank Lain (2 Pilihan: BI-FAST & RTOL)
-            Text('Pilih Metode Transfer', style: AppTextStyles.textTheme.labelLarge),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Pilih Metode Transfer', style: AppTextStyles.textTheme.labelLarge),
+                Text(
+                  '2 Layanan Tersedia',
+                  style: AppTextStyles.textTheme.labelSmall?.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
             
-            // Pilihan 1: BI-FAST
+            // Pilihan 1: BI-FAST (Lebih Rapi & Eksklusif)
             GestureDetector(
               onTap: () => setState(() => _selectedTransferMethod = 'BI-FAST'),
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: _selectedTransferMethod == 'BI-FAST'
-                      ? AppColors.primary.withOpacity(0.08)
+                      ? AppColors.primary.withOpacity(0.06)
                       : AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: _selectedTransferMethod == 'BI-FAST'
                         ? AppColors.primary
-                        : AppColors.border,
-                    width: _selectedTransferMethod == 'BI-FAST' ? 2.0 : 1.2,
+                        : AppColors.border.withOpacity(0.8),
+                    width: _selectedTransferMethod == 'BI-FAST' ? 1.8 : 1.0,
                   ),
+                  boxShadow: _selectedTransferMethod == 'BI-FAST'
+                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.12), blurRadius: 8, offset: const Offset(0, 3))]
+                      : [],
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      _selectedTransferMethod == 'BI-FAST'
-                          ? CupertinoIcons.check_mark_circled_solid
-                          : CupertinoIcons.circle,
-                      color: _selectedTransferMethod == 'BI-FAST'
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                      size: 24,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _selectedTransferMethod == 'BI-FAST'
+                            ? AppColors.primary.withOpacity(0.15)
+                            : AppColors.border.withOpacity(0.3),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _selectedTransferMethod == 'BI-FAST'
+                            ? CupertinoIcons.checkmark_alt
+                            : CupertinoIcons.arrow_right_arrow_left,
+                        color: _selectedTransferMethod == 'BI-FAST'
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -342,7 +366,6 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'BI-FAST',
@@ -351,34 +374,29 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
+                              const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryDark.withOpacity(0.1),
+                                  color: AppColors.primaryLight.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 0.8),
                                 ),
                                 child: Text(
-                                  'Rp 2.500',
+                                  'powered by apex bank bjb',
                                   style: AppTextStyles.textTheme.labelSmall?.copyWith(
                                     color: AppColors.primaryDark,
+                                    fontSize: 9.5,
                                     fontWeight: FontWeight.w800,
+                                    fontStyle: FontStyle.italic,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Powered by apex bank bjb',
-                            style: AppTextStyles.textTheme.labelSmall?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w800,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
                           const SizedBox(height: 3),
                           Text(
-                            'Layanan transfer cepat antarbank BI-FAST',
+                            'Transfer cepat antarbank 24 jam non-stop',
                             style: AppTextStyles.textTheme.bodySmall?.copyWith(
                               color: AppColors.textSecondary,
                               fontSize: 11.5,
@@ -386,6 +404,29 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
                           ),
                         ],
                       ),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Rp 2.500',
+                          style: AppTextStyles.textTheme.titleSmall?.copyWith(
+                            color: AppColors.primaryDark,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Icon(
+                          _selectedTransferMethod == 'BI-FAST'
+                              ? CupertinoIcons.check_mark_circled_solid
+                              : CupertinoIcons.circle,
+                          color: _selectedTransferMethod == 'BI-FAST'
+                              ? AppColors.primary
+                              : AppColors.border,
+                          size: 20,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -393,69 +434,62 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
             ),
             const SizedBox(height: 12),
 
-            // Pilihan 2: Transfer Online - RTOL
+            // Pilihan 2: Transfer Online - RTOL (Lebih Rapi & Eksklusif)
             GestureDetector(
               onTap: () => setState(() => _selectedTransferMethod = 'RTOL'),
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: _selectedTransferMethod == 'RTOL'
-                      ? AppColors.primary.withOpacity(0.08)
+                      ? AppColors.primary.withOpacity(0.06)
                       : AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: _selectedTransferMethod == 'RTOL'
                         ? AppColors.primary
-                        : AppColors.border,
-                    width: _selectedTransferMethod == 'RTOL' ? 2.0 : 1.2,
+                        : AppColors.border.withOpacity(0.8),
+                    width: _selectedTransferMethod == 'RTOL' ? 1.8 : 1.0,
                   ),
+                  boxShadow: _selectedTransferMethod == 'RTOL'
+                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.12), blurRadius: 8, offset: const Offset(0, 3))]
+                      : [],
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      _selectedTransferMethod == 'RTOL'
-                          ? CupertinoIcons.check_mark_circled_solid
-                          : CupertinoIcons.circle,
-                      color: _selectedTransferMethod == 'RTOL'
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                      size: 24,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _selectedTransferMethod == 'RTOL'
+                            ? AppColors.primary.withOpacity(0.15)
+                            : AppColors.border.withOpacity(0.3),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _selectedTransferMethod == 'RTOL'
+                            ? CupertinoIcons.checkmark_alt
+                            : CupertinoIcons.bolt_horizontal_circle_fill,
+                        color: _selectedTransferMethod == 'RTOL'
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Transfer Online (RTOL)',
-                                style: AppTextStyles.textTheme.titleSmall?.copyWith(
-                                  color: AppColors.primaryDark,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppColors.textSecondary.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  'Rp 6.500',
-                                  style: AppTextStyles.textTheme.labelSmall?.copyWith(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
                           Text(
-                            'Instan Real-Time via ALTO, ATM Bersama & PRIMA',
+                            'Transfer Online (RTOL)',
+                            style: AppTextStyles.textTheme.titleSmall?.copyWith(
+                              color: AppColors.primaryDark,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            'Instan via ALTO, ATM Bersama & PRIMA',
                             style: AppTextStyles.textTheme.bodySmall?.copyWith(
                               color: AppColors.textSecondary,
                               fontSize: 11.5,
@@ -463,6 +497,29 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
                           ),
                         ],
                       ),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Rp 6.500',
+                          style: AppTextStyles.textTheme.titleSmall?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Icon(
+                          _selectedTransferMethod == 'RTOL'
+                              ? CupertinoIcons.check_mark_circled_solid
+                              : CupertinoIcons.circle,
+                          color: _selectedTransferMethod == 'RTOL'
+                              ? AppColors.primary
+                              : AppColors.border,
+                          size: 20,
+                        ),
+                      ],
                     ),
                   ],
                 ),
