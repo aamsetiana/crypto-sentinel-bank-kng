@@ -101,42 +101,45 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: size.height * 0.02),
 
                   // Header Logo Bank Kuningan
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.08),
-                            blurRadius: 24,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
-                      ),
-                      child: Image.asset(
-                        'assets/images/bank-kuningan-logo.png',
-                        height: 90,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              CupertinoIcons.building_2_fill,
-                              color: AppColors.primary,
-                              size: 56,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              AppStrings.appName.toUpperCase(),
-                              style: AppTextStyles.textTheme.titleLarge?.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.5,
-                              ),
+                  RepaintBoundary(
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.08),
+                              blurRadius: 24,
+                              offset: const Offset(0, 12),
                             ),
                           ],
+                        ),
+                        child: Image.asset(
+                          'assets/images/bank-kuningan-logo.png',
+                          height: 90,
+                          cacheWidth: 300,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                CupertinoIcons.building_2_fill,
+                                color: AppColors.primary,
+                                size: 56,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                AppStrings.appName.toUpperCase(),
+                                style: AppTextStyles.textTheme.titleLarge?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -162,23 +165,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 36),
 
                   // Form Kartu Login
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppColors.border, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.shadow.withOpacity(0.06),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
+                  RepaintBoundary(
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: AppColors.border, width: 1),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.shadow.withOpacity(0.06),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                         // Input Username (Strictly Username)
                         CustomTextField(
                           label: AppStrings.usernameLabel,

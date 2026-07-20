@@ -64,6 +64,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
           keyboardType: widget.keyboardType,
           maxLength: widget.maxLength,
           onChanged: widget.onChanged,
+          autocorrect: false,
+          enableSuggestions: false,
+          textInputAction: widget.isPassword ? TextInputAction.done : TextInputAction.next,
           style: AppTextStyles.textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,

@@ -596,19 +596,22 @@ class _TransferScreenState extends State<TransferScreen> with SingleTickerProvid
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Powered By APEX BANK BJB',
+                        'Powered by',
                         style: AppTextStyles.textTheme.labelMedium?.copyWith(
                           color: AppColors.primaryDark,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.4,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       Image.asset(
                         'assets/images/bjb-logo.png',
-                        height: 22,
+                        height: 24,
                         fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                        errorBuilder: (context, error, stackTrace) => Text(
+                          'bank bjb',
+                          style: AppTextStyles.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
+                        ),
                       ),
                     ],
                   ),
