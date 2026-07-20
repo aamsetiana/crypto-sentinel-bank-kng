@@ -1,0 +1,439 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import '../../core/constants/colors.dart';
+import '../../core/constants/text_styles.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../widgets/pin_confirmation_modal.dart';
+import 'receipt_screen.dart';
+
+/// Halaman Fungsional Transfer Uang (Sesama Bank Kuningan, Bank Lain, Daftar Favorit)
+class TransferScreen extends StatefulWidget {
+  const TransferScreen({super.key});
+
+  @override
+  State<TransferScreen> createState() => _TransferScreenState();
+}
+
+class _TransferScreenState extends State<TransferScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final TextEditingController _accountController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
+
+  String _selectedBank = 'Bank Central Asia (BCA)';
+  final List<String> _banks = [
+    'Bank Central Asia (BCA)',
+    'Bank Mandiri',
+    'Bank Rakyat Indonesia (BRI)',
+    'Bank Negara Indonesia (BNI)',
+    'Bank Syariah Indonesia (BSI)',
+    'Bank CIMB Niaga',
+    'Bank Permata',
+  ];
+
+  final List<Map<String, String>> _favorites = [
+    {'name': 'Siti Rahma', 'account': '0987-6543-2100', 'bank': 'Bank Kuningan'},
+    {'name': 'PT Maju Bersama', 'account': '8899-7766-5544', 'bank': 'Bank Mandiri'},
+    {'name': 'Budi Raharjo', 'account': '1122-3344-5566', 'bank': 'BCA'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _accountController.dispose();
+    _amountController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  void _selectQuickAmount(String amount) {
+    setState(() {
+      _amountController.text = amount;
+    });
+  }
+
+  void _onFavoriteSelected(Map<String, String> fav) {
+    setState(() {
+      if (fav['bank'] == 'Bank Kuningan') {
+        _tabController.animateTo(0);
+      } else {
+        _tabController.animateTo(1);
+        _selectedBank = fav['bank'] ?? 'Bank Central Asia (BCA)';
+      }
+      _accountController.text = fav['account'] ?? '';
+    });
+  }
+
+  void _handleTransfer() {
+    if (_accountController.text.trim().isEmpty || _amountController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Harap masukkan nomor rekening dan nominal transfer'),
+          backgroundColor: AppColors.accentRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final isSesama = _tabController.index == 0;
+    final bankName = isSesama ? 'Bank Kuningan' : _selectedBank;
+    final amountText = 'Rp ${_amountController.text}';
+    final adminFee = isSesama ? 'GRATIS' : 'Rp 6.500';
+    final totalAmountText = isSesama ? amountText : 'Rp ${_amountController.text} (+ Rp 6.500)';
+
+    PinConfirmationModal.show(
+      context,
+      title: 'Konfirmasi Transfer',
+      recipientText: '$bankName • ${_accountController.text}',
+      amountText: totalAmountText,
+      onPinSuccess: () {
+        final refNo = 'REF-${DateTime.now().millisecondsSinceEpoch.toString().substring(3)}';
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReceiptScreen(
+              title: 'Transfer $bankName',
+              recipientName: 'Penerima: Rekening ${_accountController.text}',
+              recipientDetail: '$bankName (${_noteController.text.isEmpty ? "Transfer Dana" : _noteController.text})',
+              amount: amountText,
+              adminFee: adminFee,
+              totalAmount: totalAmountText,
+              referenceNumber: refNo,
+              date: 'Hari ini, ${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')} WIB',
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPillLogo(String assetPath, String fallbackText, {double height = 24}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border.withOpacity(0.8)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Image.asset(
+        assetPath,
+        height: height,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => Text(
+          fallbackText,
+          style: AppTextStyles.textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: AppColors.primaryDark,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNetworkLogo(String assetPath, String fallbackText, {double height = 24}) {
+    return _buildPillLogo(assetPath, fallbackText, height: height);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Transfer Uang'),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppColors.primary,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.textSecondary,
+          labelStyle: AppTextStyles.textTheme.labelLarge,
+          tabs: const [
+            Tab(text: 'Sesama Bank'),
+            Tab(text: 'Bank Lain'),
+            Tab(text: 'Favorit'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildFormTab(isSesama: true),
+          _buildFormTab(isSesama: false),
+          _buildFavoritesTab(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormTab({required bool isSesama}) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!isSesama) ...[
+            Text('Pilih Bank Tujuan', style: AppTextStyles.textTheme.labelLarge),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border, width: 1.2),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedBank,
+                  icon: const Icon(CupertinoIcons.chevron_down, size: 18, color: AppColors.primary),
+                  onChanged: (val) {
+                    if (val != null) setState(() => _selectedBank = val);
+                  },
+                  items: _banks.map((bank) {
+                    return DropdownMenuItem<String>(
+                      value: bank,
+                      child: Text(bank, style: AppTextStyles.textTheme.bodyMedium),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+
+          CustomTextField(
+            label: isSesama ? 'Nomor Rekening Bank Kuningan' : 'Nomor Rekening Tujuan',
+            hint: 'Masukkan 10-12 digit nomor rekening',
+            prefixIcon: CupertinoIcons.creditcard_fill,
+            controller: _accountController,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 18),
+
+          CustomTextField(
+            label: 'Nominal Transfer (Rp)',
+            hint: 'Contoh: 500.000',
+            prefixIcon: CupertinoIcons.money_dollar_circle_fill,
+            controller: _amountController,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 12),
+
+          // Pilihan Nominal Cepat
+          Text('Pilihan Cepat', style: AppTextStyles.textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: ['50.000', '100.000', '250.000', '500.000', '1.000.000'].map((amt) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ActionChip(
+                    label: Text('Rp $amt', style: AppTextStyles.textTheme.labelSmall?.copyWith(color: AppColors.primary)),
+                    backgroundColor: AppColors.primary.withOpacity(0.08),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    onPressed: () => _selectQuickAmount(amt),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          CustomTextField(
+            label: 'Catatan Transfer (Opsional)',
+            hint: 'Contoh: Bayar sewa kios bulan Juli',
+            prefixIcon: CupertinoIcons.doc_text_fill,
+            controller: _noteController,
+          ),
+          const SizedBox(height: 24),
+
+          // Info Biaya Admin (Anti-overflow & berdesain kartu eksklusif)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            decoration: BoxDecoration(
+              color: isSesama ? AppColors.accentGreen.withOpacity(0.08) : AppColors.primary.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSesama ? AppColors.accentGreen.withOpacity(0.3) : AppColors.primary.withOpacity(0.2),
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isSesama ? AppColors.accentGreen.withOpacity(0.15) : AppColors.primary.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isSesama ? CupertinoIcons.checkmark_shield_fill : CupertinoIcons.info_circle_fill,
+                    color: isSesama ? AppColors.accentGreen : AppColors.primary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Biaya Admin Bank',
+                        style: AppTextStyles.textTheme.labelSmall?.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        isSesama ? 'GRATIS (Tanpa Biaya)' : 'Rp 6.500 (Transfer Online - RTOL)',
+                        style: AppTextStyles.textTheme.titleSmall?.copyWith(
+                          color: isSesama ? AppColors.accentGreen : AppColors.primaryDark,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          ElevatedButton(
+            onPressed: _handleTransfer,
+            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 18)),
+            child: const Text('Lanjutkan Transfer'),
+          ),
+          const SizedBox(height: 32),
+
+          // Jaringan Transfer (ALTO, ATM Bersama, PRIMA) & Powered by Bank bjb
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppColors.border, width: 1.2),
+              boxShadow: [
+                BoxShadow(color: AppColors.shadow.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 6)),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(CupertinoIcons.shield_lefthalf_fill, color: AppColors.primary, size: 16),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        'Mendukung Jaringan Transfer Real-Time Online (RTOL)',
+                        style: AppTextStyles.textTheme.labelSmall?.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.2,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Deretan Logo Jaringan dalam Badge Putih Bersih
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildPillLogo('assets/images/alto-logo.png', 'ALTO', height: 24),
+                    const SizedBox(width: 12),
+                    _buildPillLogo('assets/images/atm-bersama-logo.png', 'ATM Bersama', height: 26),
+                    const SizedBox(width: 12),
+                    _buildPillLogo('assets/images/prima-logo.png', 'PRIMA', height: 24),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Divider(color: AppColors.border.withOpacity(0.7), height: 1),
+                const SizedBox(height: 16),
+                // Powered by bank bjb dalam Badge Rapi
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.border.withOpacity(0.8)),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Powered by',
+                        style: AppTextStyles.textTheme.labelMedium?.copyWith(
+                          color: AppColors.primaryDark,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Image.asset(
+                        'assets/images/bjb-logo.png',
+                        height: 24,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Text(
+                          'bank bjb',
+                          style: AppTextStyles.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFavoritesTab() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: _favorites.length,
+      itemBuilder: (context, index) {
+        final fav = _favorites[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppColors.primary.withOpacity(0.12),
+              child: Text(
+                fav['name']!.substring(0, 1),
+                style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+              ),
+            ),
+            title: Text(fav['name']!, style: AppTextStyles.textTheme.titleMedium),
+            subtitle: Text('${fav['bank']} • ${fav['account']}', style: AppTextStyles.textTheme.bodySmall),
+            trailing: const Icon(CupertinoIcons.arrow_right_circle_fill, color: AppColors.primary),
+            onTap: () => _onFavoriteSelected(fav),
+          ),
+        );
+      },
+    );
+  }
+}
