@@ -236,6 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
+                  ),
                   const SizedBox(height: 24),
 
                   // Tombol Biometric Login & Tautan Bantuan
